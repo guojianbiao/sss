@@ -1,0 +1,60 @@
+<template>
+  <transition name="slide">
+    <div class="singer-detail"></div>
+  </transition>
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+import { getSingerDetail } from 'api/singer'
+import { ERR_OK } from 'api/config'
+export default {
+  created() {
+    // console.log(this.singer)
+    setTimeout(() => {
+      this._getSingerDetail()
+    }, 20)
+  },
+  methods: {
+    _getSingerDetail() {
+      if (!this.singer.id) {
+        this.$router.push('/singer')
+        return
+      }
+      getSingerDetail(this.singer.id).then((res) => {
+        if (res.code === ERR_OK) {
+          this._normalizeSongs(res.data.list)
+        }
+      })
+    },
+    // 处理获取到的数据
+    _normalizeSongs(list) {
+      let ret = []
+      list.forEach((item) => {
+        let { musicData } = item // 解构赋值
+      })
+    }
+  },
+  // vuex中的getters里面的方法，相当于计算属性
+  computed: {
+    ...mapGetters(['singer'])
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+  @import "~common/stylus/variable"
+
+  .singer-detail
+    position fixed
+    top 0
+    right 0
+    bottom 0
+    left 0
+    z-index 100
+    background $color-background
+  .slide-enter-active, .slide-leave-active
+    transition all 0.3s
+  .slide-enter, .slide-leave-to
+    transform translate3d(100%, 0, 0)
+</style>
