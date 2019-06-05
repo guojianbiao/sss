@@ -8,7 +8,13 @@
 import { mapGetters } from 'vuex'
 import { getSingerDetail } from 'api/singer'
 import { ERR_OK } from 'api/config'
+import { createSong, processSongsUrl } from 'common/js/song'
 export default {
+  data() {
+    return {
+      songs: []
+    }
+  },
   created() {
     // console.log(this.singer)
     setTimeout(() => {
@@ -23,7 +29,10 @@ export default {
       }
       getSingerDetail(this.singer.id).then((res) => {
         if (res.code === ERR_OK) {
-          this._normalizeSongs(res.data.list)
+          processSongsUrl(this._normalizeSongs(res.data.list)).then((songs) => {
+            this.songs = songs
+            console.log(this.songs)
+          })
         }
       })
     },
@@ -32,7 +41,11 @@ export default {
       let ret = []
       list.forEach((item) => {
         let { musicData } = item // 解构赋值
+        if (musicData.songid && musicData.albummid) {
+          ret.push(createSong(musicData))
+        }
       })
+      return ret
     }
   },
   // vuex中的getters里面的方法，相当于计算属性
