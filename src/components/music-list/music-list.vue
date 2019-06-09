@@ -5,7 +5,7 @@
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
-      <div class="filter"></div>
+      <div class="filter" ref="filter"></div>
     </div>
     <div class="bg-layer" ref="layer"></div>
     <scroll
@@ -60,7 +60,7 @@ export default {
     this.imageHeight = this.$refs.bgImage.clientHeight
     // 滚动的最小值
     this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT
-    // 这里是普通 DOM 节点 
+    // 这里是普通 DOM 节点
     this.$refs.list.$el.style.top = `${this.$refs.bgImage.clientHeight}px`
   },
   methods: {
@@ -74,12 +74,23 @@ export default {
       // 取一组数字中的最大值
       let tranlateY = Math.max(this.minTranslateY, newY)
       let zIndex = 0
+      let scale = 1
+      let blur = 0
       // console.log('newy:' + newY)
       // console.log('minTranslateY:' + this.minTranslateY)
       // console.log('tranlateY:' + tranlateY)
       // 这里是组件节点
       this.$refs.layer.style['transform'] = `translate3d(0, ${tranlateY}px, 0)`
       this.$refs.layer.style['webkitTransform'] = `translate3d(0, ${tranlateY}px, 0)`
+      const percent = Math.abs(newY / this.imageHeight)
+      if (newY > 0) {
+        zIndex = 10
+        scale = 1 + percent
+      } else {
+        blur = Math.min(20 * percent, 20)
+      }
+      this.$refs.filter.style['backdrop-filter'] = `blur(${blur})px`
+      this.$refs.filter.style['webkitBackdrop-filter'] = `blur(${blur})px`
       if (newY < this.minTranslateY) {
         zIndex = 10
         this.$refs.bgImage.style.paddingTop = 0
@@ -88,6 +99,8 @@ export default {
         this.$refs.bgImage.style.paddingTop = '70%'
         this.$refs.bgImage.style.height = 0
       }
+      this.$refs.bgImage.style['transform'] = `scale(${scale})`
+      this.$refs.bgImage.style['webkitTransform'] = `scale(${scale})`
       this.$refs.bgImage.style.zIndex = zIndex
     }
   },
