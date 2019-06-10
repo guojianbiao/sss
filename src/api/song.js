@@ -11,6 +11,8 @@ export function getSongUrl(songs) {
     mids.push(song.mid)
     types.push(0)
   })
+  console.log(mids)
+  console.log(types)
 
   const urlMid = getUrlMid(mids, types)
   const data = Object.assign({}, commonParams, {
