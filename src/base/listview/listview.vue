@@ -89,6 +89,7 @@ export default {
   },
   methods: {
     handleClickItem(item) {
+      console.log(item)
       this.$emit('select', item)
     },
     onShortcutTouchStart(e) {

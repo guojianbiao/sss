@@ -15,6 +15,7 @@ export function getSongUrl(songs) {
   console.log(types)
 
   const urlMid = getUrlMid(mids, types)
+  console.log(urlMid)
   const data = Object.assign({}, commonParams, {
     g_tk: 5381,
     format: 'json',
@@ -31,6 +32,7 @@ export function getSongUrl(songs) {
         url_mid: urlMid
       }).then((response) => {
         const res = response.data
+        console.log(res.ts)
         if (res.code === ERR_OK) {
           let urlMid = res.url_mid
           if (urlMid && urlMid.code === ERR_OK) {
