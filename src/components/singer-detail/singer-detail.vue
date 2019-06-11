@@ -1,6 +1,6 @@
 <template>
   <transition name="slide">
-    <music-list :songs="songs" :title="title" :bg-image="bgImage"></music-list>
+    <music-list :title="title" :bg-image="bgImage" :songs="songs"></music-list>
   </transition>
 </template>
 
@@ -20,6 +20,7 @@ export default {
     }
   },
   created() {
+    // console.log(this.singer)
     setTimeout(() => {
       this._getSingerDetail()
     }, 20)
@@ -34,7 +35,7 @@ export default {
         if (res.code === ERR_OK) {
           processSongsUrl(this._normalizeSongs(res.data.list)).then((songs) => {
             this.songs = songs
-            // console.log('songs:' + this.songs)
+            console.log(this.songs)
           })
         }
       })
@@ -45,10 +46,10 @@ export default {
       list.forEach((item) => {
         let { musicData } = item // 解构赋值
         if (musicData.songid && musicData.albummid) {
+          
           ret.push(createSong(musicData))
         }
       })
-      // console.log(ret)
       return ret
     }
   },
@@ -68,6 +69,14 @@ export default {
 <style lang="stylus" scoped>
   @import "~common/stylus/variable"
 
+  .singer-detail
+    position fixed
+    top 0
+    right 0
+    bottom 0
+    left 0
+    z-index 100
+    background $color-background
   .slide-enter-active, .slide-leave-active
     transition all 0.3s
   .slide-enter, .slide-leave-to
