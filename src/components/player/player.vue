@@ -28,6 +28,13 @@
           </div>
         </div>
         <div class="bottom">
+          <div class="progress-wrapper">
+            <span class="time time-l">{{ format(currentTime) }}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent" @percentChange="handlePercent"></progress-bar>
+            </div>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
+          </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
@@ -65,7 +72,7 @@
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error"></audio>
+    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
   </div>
 </template>
 
@@ -73,12 +80,17 @@
 import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
+import ProgressBar from 'base/progress-bar/progress-bar'
 
 const transform = prefixStyle('transform')
 export default {
+  components: {
+    ProgressBar
+  },
   data() {
     return {
-      songReady: false
+      songReady: false,
+      currentTime: ''
     }
   },
   computed: {
@@ -93,6 +105,9 @@ export default {
     },
     miniIcon() {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini' 
+    },
+    percent() {
+      return this.currentTime / this.currentSong.duration
     },
     ...mapGetters([
       'fullScreen',
@@ -209,6 +224,23 @@ export default {
       // 当歌曲的url不正确的时候，设置这个确保能正常进行点击切换
       this.songReady = true
     },
+    updateTime(e) {
+      this.currentTime = e.target.currentTime
+    },
+    // 处理播放时间戳
+    format(interval) {
+      interval = interval | 0
+      let minute = interval / 60 | 0 // 向下取整，相当于Math.floor
+      let second = (interval % 60).toString().padStart(2, '0')
+      return `${minute}:${second}`
+    },
+    handlePercent(percent) {
+      this.$refs.audio.currentTime = this.currentSong.duration * percent
+      // console.log('s:' + this.$refs.audio.currentTime)
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlaying: 'SET_PLAYING',
@@ -322,6 +354,24 @@ export default {
         position absolute
         bottom 50px
         width 100%
+        .progress-wrapper
+          display flex
+          align-items center
+          width 80%
+          margin 0 auto
+          padding 10px 0
+          .time
+            flex 0 0 30px
+            width 30px
+            line-height 30px
+            color $color-text
+            font-size $font-size-small
+            &.time-l
+              text-align left 
+            &.time-r
+              text-align right
+          .progress-bar-wrapper
+            flex 1
         .operators
           display flex
           align-items center
