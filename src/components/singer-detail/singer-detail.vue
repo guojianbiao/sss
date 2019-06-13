@@ -46,7 +46,6 @@ export default {
       list.forEach((item) => {
         let { musicData } = item // 解构赋值
         if (musicData.songid && musicData.albummid) {
-          
           ret.push(createSong(musicData))
         }
       })

@@ -65,7 +65,9 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i :class="miniIcon" @click.stop="togglePlaying"></i>
+          <progress-circle :radius="radius">
+            <i :class="miniIcon" @click.stop="togglePlaying" class="icon-mini"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
@@ -81,16 +83,19 @@ import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
+import ProgressCircle from 'base/progress-circle/progress-circle'
 
 const transform = prefixStyle('transform')
 export default {
   components: {
-    ProgressBar
+    ProgressBar,
+    ProgressCircle
   },
   data() {
     return {
       songReady: false,
-      currentTime: ''
+      currentTime: '',
+      radius: 32
     }
   },
   computed: {
@@ -101,10 +106,10 @@ export default {
       return this.songReady ? '' : 'disable'
     },
     playIcon() {
-      return this.playing ? 'icon-pause' : 'icon-play' 
+      return this.playing ? 'icon-pause' : 'icon-play'
     },
     miniIcon() {
-      return this.playing ? 'icon-pause-mini' : 'icon-play-mini' 
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
     percent() {
       return this.currentTime / this.currentSong.duration
@@ -137,7 +142,6 @@ export default {
           transform: `translate3d(0, 0, 0) scale(1)`
         }
       }
-      
       // 初始化动画
       animations.registerAnimation({
         name: 'move',
@@ -147,7 +151,6 @@ export default {
           easing: 'linear'
         }
       })
-
       // 运行动画
       animations.runAnimation(this.$refs.cdWrapper, 'move', done)
     },
@@ -164,7 +167,7 @@ export default {
     },
     afterLeave() {
       this.$refs.cdWrapper.style.transition = ''
-       this.$refs.cdWrapper.style[transform] = ''
+      this.$refs.cdWrapper.style[transform] = ''
     },
     // 获取位置和缩放比例
     _getPosScale() {
@@ -367,7 +370,7 @@ export default {
             color $color-text
             font-size $font-size-small
             &.time-l
-              text-align left 
+              text-align left
             &.time-r
               text-align right
           .progress-bar-wrapper
@@ -449,6 +452,11 @@ export default {
         .icon-pause-mini, .icon-play-mini, .icon-playlist
           font-size 30px
           color $color-theme-d
+        .icon-mini
+          font-size 30px
+          position absolute
+          left 0
+          top 0
   @keyframes rotate
     0%
       transform rotate(0)
