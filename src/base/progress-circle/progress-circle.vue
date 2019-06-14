@@ -2,7 +2,7 @@
   <div class="progress-circle">
     <svg :width="radius" :height="radius" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
       <circle class="progress-background" r="50" cy="50" cx="50" fill="transparent"></circle>
-      <circle class="progress-bar" r="50" cy="50" cx="50" fill="transparent" stroke-dasharray="100"></circle>
+      <circle class="progress-bar" r="50" cy="50" cx="50" fill="transparent" :stroke-dasharray="dasharray" :stroke-dashoffset="dashoffset"></circle>
     </svg>
     <slot></slot>
   </div>
@@ -14,6 +14,20 @@ export default {
     radius: {
       type: Number,
       default: 100
+    },
+    percent: {
+      type: Number,
+      default: 0
+    }
+  },
+  data() {
+    return {
+      dasharray: Math.PI * 100
+    }
+  },
+  computed: {
+    dashoffset() {
+      return (1 - this.percent) * this.dasharray
     }
   }
 }
