@@ -239,7 +239,7 @@ export default {
     },
     _loop() {
       this.$refs.audio.currentTime = 0
-       this.$refs.audio.play()
+      this.$refs.audio.play()
     },
     error() {
       // 当歌曲的url不正确的时候，设置这个确保能正常进行点击切换
@@ -271,7 +271,7 @@ export default {
       } else {
         list = this.sequenceList
       }
-      console.log(list)
+      // console.log(list)
       this.restCurrentIndex(list)
       this.setPlayList(list)
     },
@@ -296,6 +296,7 @@ export default {
       }
       this.$nextTick(() => {
         this.$refs.audio.play()
+        this.currentSong.getLyric()
       })
     },
     playing(newPlaying) {

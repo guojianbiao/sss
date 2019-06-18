@@ -1,6 +1,8 @@
+/* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable no-sequences */
-import { getSongUrl } from 'api/song'
+import { getSongUrl, getLyric } from 'api/song'
 import { ERR_OK } from 'api/config'
+import { Base64 } from 'js-base64'
 
 /* eslint-disable no-unused-expressions */
 export default class Song {
@@ -13,6 +15,22 @@ export default class Song {
     this.image = image,
     this.url = url,
     this.album = album
+  }
+  getLyric() {
+    if (this.lyric) {
+      return Promise.resolve(this.lyric)
+    }
+
+    return new Promise((resolve, reject) => {
+      getLyric(this.mid).then((res) => {
+        if (res.retcode === ERR_OK) {
+          this.lyric = Base64.decode(res.lyric)
+          resolve(this.lyric)
+        } else {
+          reject('no lyric')
+        }
+      })
+    })
   }
 }
 
