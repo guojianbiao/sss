@@ -23,11 +23,14 @@
           @touchmove.prevent="middleTouchMove"
           @touchend="middleTouchEnd"
         >
-          <div class="middle-l">
+          <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd">
                 <img :src="currentSong.image" alt="" class="image" :class="cdCls">
               </div>
+            </div>
+            <div class="play-lyric-wrapper">
+              <div class="play-lyric">{{ playingLyric }}</div>
             </div>
           </div>
           <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
@@ -111,6 +114,7 @@ import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
 
 const transform = prefixStyle('transform')
+const transitionDuration = prefixStyle('transitionDuration')
 export default {
   components: {
     ProgressBar,
@@ -124,7 +128,8 @@ export default {
       radius: 32,
       currentLyric: null,
       currentLineNum: 0,
-      currentShow: 'cd'
+      currentShow: 'cd',
+      playingLyric: ''
     }
   },
   created() {
@@ -227,18 +232,25 @@ export default {
       if (!this.songReady) {
         return
       }
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()
+      }
     },
     prev() {
       if (!this.songReady) {
         return
       }
-      let index = this.currentIndex - 1
-      if (index === -1) {
-        index = this.playList.length - 1
-      }
-      this.setCurrentIndex(index)
-      if (!this.playing) {
-        this.togglePlaying()
+      if (this.playList.length === 1) {
+        this.loop()
+      } else {
+        let index = this.currentIndex - 1
+        if (index === -1) {
+          index = this.playList.length - 1
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
       }
       this.songReady = false
     },
@@ -246,13 +258,17 @@ export default {
       if (!this.songReady) {
         return
       }
-      let index = this.currentIndex + 1
-      if (index === this.playList.length) {
-        index = 0
-      }
-      this.setCurrentIndex(index)
-      if (!this.playing) {
-        this.togglePlaying()
+      if (this.playList.length === 1) {
+        this.loop()
+      } else {
+        let index = this.currentIndex + 1
+        if (index === this.playList.length) {
+          index = 0
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
       }
       this.songReady = false
     },
@@ -262,14 +278,17 @@ export default {
     },
     end() {
       if (this.mode === playMode.loop) {
-        this._loop()
+        this.loop()
       } else {
         this.next()
       }
     },
-    _loop() {
+    loop() {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
+      if (this.currentLyric) {
+        this.currentLyric.seek(0)
+      }
     },
     error() {
       // 当歌曲的url不正确的时候，设置这个确保能正常进行点击切换
@@ -286,10 +305,14 @@ export default {
       return `${minute}:${second}`
     },
     handlePercent(percent) {
-      this.$refs.audio.currentTime = this.currentSong.duration * percent
+      const currentTime = this.currentSong.duration * percent
+      this.$refs.audio.currentTime = currentTime
       // console.log('s:' + this.$refs.audio.currentTime)
       if (!this.playing) {
         this.togglePlaying()
+      }
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
       }
     },
     changePlayMode() {
@@ -318,6 +341,10 @@ export default {
           this.currentLyric.play()
         }
         console.log(this.currentLyric)
+      }).catch(() => {
+        this.currentLyric = null
+        this.currentLineNum = 0
+        this.playingLyric = ''
       })
     },
     handler({lineNum, txt}) {
@@ -328,6 +355,7 @@ export default {
       } else {
          this.$refs.lyricList.scrollTo(0, 0, 1000)
       }
+      this.playingLyric = txt
       // console.log(lineNum)
     },
     // 滑动切换歌词
@@ -349,9 +377,40 @@ export default {
       }
       const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
       const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+      this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
+      // console.log(this.touch.percent)
+      this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`
+      this.$refs.lyricList.$el.style[transitionDuration] = 0
+      this.$refs.middleL.style.opacity = 1 - this.touch.percent
+      this.$refs.middleL.style[transitionDuration] = 0
     },
     middleTouchEnd() {
-
+      let offsetWidth
+      let opacity
+      if (this.currentShow === 'cd') {
+        if (this.touch.percent > 0.1) {
+          offsetWidth = -window.innerWidth
+          this.currentShow = 'lyric'
+          opacity = 0
+        } else {
+          offsetWidth = 0
+          opacity = 1
+        }
+      } else {
+        if (this.touch.percent < 0.9) {
+          offsetWidth = 0
+          this.currentShow = 'cd'
+          opacity = 1
+        } else {
+          offsetWidth = -window.innerWidth
+          opacity = 0
+        }
+      }
+      const time = 300
+      this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`
+      this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
+      this.$refs.middleL.style.opacity = opacity
+      this.$refs.middleL.style[transitionDuration] = `${time}ms`
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
@@ -365,6 +424,9 @@ export default {
     currentSong(newSong, oldSong) {
       if (newSong.id === oldSong.id) {
         return
+      }
+      if (this.currentLyric) {
+        this.currentLyric.stop()
       }
       this.$nextTick(() => {
         this.$refs.audio.play()
@@ -468,6 +530,17 @@ export default {
                 box-sizing border-box
                 border-radius 50%
                 border 10px solid rgba(255, 255, 255, 0.1)
+          .play-lyric-wrapper
+            width 80%
+            margin 30px auto 0 auto
+            overflow hidden
+            text-align center
+            .play-lyric
+              height 20px
+              line-height 20px
+              font-size $font-size-medium
+              color $color-text-l
+              no-wrap()
         .middle-r
           display inline-block
           vertical-align top
