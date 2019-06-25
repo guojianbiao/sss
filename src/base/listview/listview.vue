@@ -138,6 +138,9 @@ export default {
         this.listHeight.push(height)
       }
       // console.log(this.listHeight)
+    },
+    refresh() {
+      this.$refs.listview.refresh()
     }
   },
   watch: {

@@ -428,10 +428,10 @@ export default {
       if (this.currentLyric) {
         this.currentLyric.stop()
       }
-      this.$nextTick(() => {
+      setTimeout(() => {
         this.$refs.audio.play()
         this.getLyric()
-      })
+      }, 1000)
     },
     playing(newPlaying) {
       const audio = this.$refs.audio
