@@ -36,3 +36,27 @@ export function getDiscList() {
     return Promise.resolve(res.data)
   })
 }
+
+// 获取热门歌单详情数据
+export function getSongList(disstid) {
+  const url = '/api/getCdInfo'
+
+  const data = Object.assign({}, commonParams, {
+    type: 1,
+    json: 1,
+    utf8: 1,
+    onlysong: 0,
+    disstid,
+    g_tk: 763142790,
+    platform: 'yqq.json',
+    hostUin: 0,
+    format: 'json',
+    notice: 0
+  })
+
+  return axios.get(url, {
+    params: data
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}

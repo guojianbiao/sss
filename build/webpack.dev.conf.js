@@ -82,6 +82,30 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+
+      // 热门歌单详情数据接口代理
+      app.get('/api/getCdInfo', function(req, res) {
+        const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          let ret = response.data
+          if (typeof ret === 'string') {
+            const reg = /^\w+\(({.+})\)$/
+            const matches = ret.match(reg)
+            if (matches) {
+              ret = JSON.parse(matches[1])
+            }
+          }
+          res.json(ret)
+        }).catch((err) => {
+          console.log(err)
+        })
+      })
     },
     clientLogLevel: 'warning',
     historyApiFallback: {

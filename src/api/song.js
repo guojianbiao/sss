@@ -32,8 +32,8 @@ export function getSongUrl(songs) {
     mids.push(song.mid)
     types.push(0)
   })
-  console.log(mids)
-  console.log(types)
+  // console.log(mids)
+  // console.log(types)
 
   const urlMid = getUrlMid(mids, types)
   console.log(urlMid)

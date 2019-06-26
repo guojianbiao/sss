@@ -64,6 +64,10 @@ export function processSongsUrl(songs) {
   })
 }
 
+export function isValidMusic(musicData) {
+  return musicData.songid && musicData.albummid && (!musicData.pay || musicData.pay.payalbumprice === 0)
+}
+
 // 处理singer数据
 function filterSinger(singer) {
   let ret = []
