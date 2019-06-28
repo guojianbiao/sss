@@ -7,7 +7,7 @@
 <script>
 import MusicList from 'components/music-list/music-list'
 import { mapGetters } from 'vuex'
-import { getSongList } from 'api/recommend'
+import { getMusicList } from 'api/rank'
 import { ERR_OK } from 'api/config'
 import { createSong, processSongsUrl, isValidMusic } from 'common/js/song'
 
@@ -21,42 +21,45 @@ export default {
     }
   },
   created() {
-    this._getSongList()
+    this._getMusicList()
   },
   methods: {
-    _getSongList() {
-      if (!this.disc.dissid) {
-        this.$router.push('/recommend')
+    _getMusicList() {
+      if (!this.topList.id) {
+        this.$router.push('/rank')
         return
       }
-      getSongList(this.disc.dissid).then((res) => {
+      getMusicList(this.topList.id).then((res) => {
         if (res.code === ERR_OK) {
-          processSongsUrl(this._normalizeSongs(res.cdlist[0].songlist)).then((songs) => {
+          processSongsUrl(this._normalizeSongs(res.songlist)).then((songs) => {
             this.songs = songs
+            // console.log(this.songs)
           })
         }
       })
     },
     _normalizeSongs(list) {
       let ret = []
-      list.forEach((musicData) => {
+      list.forEach((item) => {
+        const musicData = item.data
         if (isValidMusic(musicData)) {
           ret.push(createSong(musicData))
         }
       })
-      // console.log(ret)
       return ret
     }
   },
   computed: {
     title() {
-      return this.disc.dissname
+      return this.topList.topTitle
     },
     bgImage() {
-      return this.disc.imgurl
+      if (this.songs.length) {
+        return this.songs[0].image
+      }
     },
     ...mapGetters([
-      'disc'
+      'topList'
     ])
   }
 }

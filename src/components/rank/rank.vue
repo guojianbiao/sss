@@ -1,20 +1,24 @@
 <template>
-  <div class="rank">
-    <scroll class="toplist" :data="topList">
+  <div class="rank" ref="rank">
+    <scroll class="toplist" :data="topList" ref="toplist">
       <ul>
-        <li class="item" v-for="(list, index) in topList" :key="index">
+        <li class="item" v-for="(list, index) in topList" :key="index" @click="selectItem(list)">
           <div class="icon">
             <img v-lazy="list.picUrl" alt="" width="100" height="100">
           </div>
           <ul class="songlist">
-            <li class="song" v-for="(item, index) in list.songList" :key="item.singername">
-              <span>{{ index + 1 }}</span>
+            <li class="song" v-for="(item, index) in list.songList" :key="index">
+              <span>{{ index + 1 }}.</span>
               <span>{{ item.songname }} - {{ item.singername }}</span>
             </li>
           </ul>
         </li>
       </ul>
+      <div class="loading-wrapper" v-show="!topList.length">
+        <loading></loading>
+      </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -22,10 +26,15 @@
 import { getTopList } from 'api/rank'
 import { ERR_OK } from 'api/config'
 import Scroll from 'base/scroll/scroll'
+import Loading from 'base/loading/loading'
+import { playlistMixin } from 'common/js/mixin'
+import { mapMutations } from 'vuex'
 
 export default {
+  mixins: [playlistMixin],
   components: {
-    Scroll
+    Scroll,
+    Loading
   },
   data() {
     return {
@@ -36,13 +45,27 @@ export default {
     this._getTopList()
   },
   methods: {
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.rank.style.bottom = bottom
+      this.$refs.toplist.refresh()
+    },
+    selectItem(list) {
+      this.$router.push({
+        path: `/rank/${list.id}`
+      })
+      this.setTopList(list)
+    },
     _getTopList() {
       getTopList().then((res) => {
         if (res.code === ERR_OK) {
           this.topList = res.data.topList
         }
       })
-    }
+    },
+    ...mapMutations({
+      setTopList: 'SET_TOP_LIST'
+    })
   }
 }
 </script>
@@ -84,4 +107,9 @@ export default {
           .song
             no-wrap()
             line-height 26px
+    .loading-wrapper
+      position absolute
+      top 50%
+      width 100%
+      transform translateY(-50%)
 </style>
