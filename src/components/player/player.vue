@@ -353,7 +353,7 @@ export default {
       if (lineNum > 5) {
         this.$refs.lyricList.scrollToElement(lineEl, 1000)
       } else {
-         this.$refs.lyricList.scrollTo(0, 0, 1000)
+        this.$refs.lyricList.scrollTo(0, 0, 1000)
       }
       this.playingLyric = txt
       // console.log(lineNum)
@@ -532,7 +532,7 @@ export default {
                 border 10px solid rgba(255, 255, 255, 0.1)
           .play-lyric-wrapper
             width 80%
-            margin 30px auto 0 auto
+            margin 15px auto 0 auto
             overflow hidden
             text-align center
             .play-lyric
