@@ -1,5 +1,11 @@
 <template>
-  <div class="suggest">
+  <scroll
+    class="suggest"
+    :data="result"
+    :pullUp="pullUp"
+    ref="suggest"
+    @scrollToEnd="searchMore"
+  >
     <ul class="suggest-list">
       <li class="suggest-item" v-for="(item, index) in result" :key="index">
         <div class="icon">
@@ -9,19 +15,26 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
+      <loading v-show="hasMore" title=""></loading>
     </ul>
-  </div>
+  </scroll>
 </template>
 
 <script>
 import { getSearch } from 'api/search'
 import { ERR_OK } from 'api/config'
+import Scroll from 'base/scroll/scroll'
+import Loading from 'base/loading/loading'
 import { createSong, isValidMusic, processSongsUrl } from 'common/js/song'
 
 const TYPE_SINGER = 'singer'
 const perpage = 20
 
 export default {
+  components: {
+    Scroll,
+    Loading
+  },
   props: {
     query: {
       type: String,
@@ -35,27 +48,58 @@ export default {
   data() {
     return {
       page: 1,
-      result: []
+      result: [],
+      pullUp: true,
+      hasMore: true
     }
   },
   methods: {
     _getSearch() {
+      this.page = 1
+      this.hasMore = true
+      this.$refs.suggest.scrollTo(0, 0)
       getSearch(this.query, this.page, this.showSinger, perpage).then((res) => {
         if (res.code === ERR_OK) {
           this._genResult(res.data).then((result) => {
             this.result = result
+            // console.log(this.result)
           })
+          this._checkMore(res.data)
         }
       })
+    },
+    // 下拉更多
+    searchMore() {
+      if (!this.hasMore) {
+        return
+      }
+      this.page++
+      getSearch(this.query, this.page, this.showSinger, perpage).then((res) => {
+        if (res.code === ERR_OK) {
+          this._genResult(res.data).then((result) => {
+            this.result = this.result.concat(result)
+            // console.log(this.result)
+          })
+          this._checkMore(res.data)
+        }
+      })
+    },
+    _checkMore(data) {
+      const song = data.song
+      if (!song.list.length && (song.curnum + (song.curpage - 1) * perpage) >= song.totalnum) {
+        this.hasMore = false
+      }
     },
     // 对获取到的数据进行想要的结果处理
     _genResult(data) {
       let ret = []
       if (data.zhida && data.zhida.singerid) {
-        ret.push(...data.zhida, ...{ type: TYPE_SINGER })
+        ret.push({...data.zhida, ...{ type: TYPE_SINGER }})
       }
+      // console.log(ret)
       return processSongsUrl(this._normalizeSongs(data.song.list)).then((songs) => {
         ret = ret.concat(songs)
+        // console.log(ret)
         return ret
       })
     },
@@ -85,9 +129,9 @@ export default {
   },
   watch: {
     query(newQuery) {
-      if (!newQuery) {
-        return
-      }
+      // if (!newQuery) {
+      //   return
+      // }
       this._getSearch(newQuery)
     }
   }

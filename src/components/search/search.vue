@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <div class="search-box-wrapper">
-      <search-box ref="searchBox" @query="onQuery(query)"></search-box>
+      <search-box ref="searchBox" @query="onQuery"></search-box>
     </div>
     <div class="shortcut-wrapper" v-show="!query">
       <div class="shortcut">
