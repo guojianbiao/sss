@@ -7,7 +7,7 @@
     @scrollToEnd="searchMore"
   >
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="(item, index) in result" :key="index">
+      <li class="suggest-item" v-for="(item, index) in result" :key="index" @click="selectItem(item)">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
@@ -26,6 +26,8 @@ import { ERR_OK } from 'api/config'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
 import { createSong, isValidMusic, processSongsUrl } from 'common/js/song'
+import Singer from 'common/js/singer'
+import { mapMutations, mapActions } from 'vuex'
 
 const TYPE_SINGER = 'singer'
 const perpage = 20
@@ -62,7 +64,7 @@ export default {
         if (res.code === ERR_OK) {
           this._genResult(res.data).then((result) => {
             this.result = result
-            // console.log(this.result)
+            console.log(this.result)
           })
           this._checkMore(res.data)
         }
@@ -86,7 +88,7 @@ export default {
     },
     _checkMore(data) {
       const song = data.song
-      if (!song.list.length && (song.curnum + (song.curpage - 1) * perpage) >= song.totalnum) {
+      if (!song.list.length || (song.curnum + (song.curpage - 1) * perpage) >= song.totalnum) {
         this.hasMore = false
       }
     },
@@ -125,7 +127,27 @@ export default {
       } else {
         return `${item.name}-${item.singer}`
       }
-    }
+    },
+    selectItem(item) {
+      if (item.type === TYPE_SINGER) {
+        const singer = new Singer({
+          id: item.singermid,
+          name: item.singername
+        })
+        this.$router.push({
+          path: `/search/${singer.id}`
+        })
+        this.setSinger(singer)
+      } else {
+        this.insertSong(item)
+      }
+    },
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    }),
+    ...mapActions([
+      'insertSong'
+    ])
   },
   watch: {
     query(newQuery) {
