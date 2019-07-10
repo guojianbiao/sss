@@ -1,12 +1,14 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input type="text" class="box" :placeholder="placeholder" v-model="query">
+    <input type="text" class="box" :placeholder="placeholder" v-model="query" ref="query">
     <i class="icon-dismiss" v-show="query" @click="clear"></i>
   </div>
 </template>
 
 <script>
+import { debounce } from 'common/js/util'
+
 export default {
   props: {
     placeholder: {
@@ -21,9 +23,9 @@ export default {
   },
   created() {
     // 监听query的变化，派发事件，把变化的值发出去
-    this.$watch('query', (newQuery) => {
+    this.$watch('query', debounce((newQuery) => {
       this.$emit('query', newQuery)
-    })
+    }, 300))
   },
   methods: {
     clear() {
@@ -31,6 +33,9 @@ export default {
     },
     setQuery(query) {
       this.query = query
+    },
+    blur() {
+      this.$refs.query.blur()
     }
   }
 }
