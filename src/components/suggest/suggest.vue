@@ -123,14 +123,14 @@ export default {
       return ret
     },
     getIconCls(item) {
-      if(item.type === TYPE_SINGER) {
+      if (item.type === TYPE_SINGER) {
         return 'icon-mine'
       } else {
         return 'icon-music'
       }
     },
     getDisplayName(item) {
-      if(item.type === TYPE_SINGER) {
+      if (item.type === TYPE_SINGER) {
         return item.singername
       } else {
         return `${item.name}-${item.singer}`
