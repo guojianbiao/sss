@@ -17,11 +17,11 @@
           <div class="search-history" v-show="searchHistory.length">
             <h1 class="title">
               <span class="text">搜索历史</span>
-              <span class="clear">
+              <span class="clear" @click="clearSearchHistory">
                 <i class="icon-clear"></i>
               </span>
             </h1>
-            <search-list :searchs="searchHistory" @select="addQuery"></search-list>
+            <search-list :searchs="searchHistory" @select="addQuery" @delete="deleteSearchHistory"></search-list>
           </div>
         </div>
       </scroll>
@@ -29,6 +29,7 @@
     <div class="search-result" v-show="query">
       <suggest :query="query" :listScroll="blurInput" @select="saveSearch"></suggest>
     </div>
+    <confirm ref="confirm"></confirm>
     <router-view></router-view>
   </div>
 </template>
@@ -37,6 +38,7 @@
 import SearchBox from 'base/search-box/search-box'
 import Suggest from 'components/suggest/suggest'
 import SearchList from 'base/search-list/search-list'
+import Confirm from 'base/confirm/confirm'
 import Scroll from 'base/scroll/scroll'
 import { getHotKey } from 'api/search'
 import { ERR_OK } from 'api/config'
@@ -47,7 +49,8 @@ export default {
     SearchBox,
     Suggest,
     SearchList,
-    Scroll
+    Scroll,
+    Confirm
   },
   data() {
     return {
@@ -88,7 +91,9 @@ export default {
       this.searchSaveHistory(this.query)
     },
     ...mapActions([
-      'searchSaveHistory'
+      'searchSaveHistory',
+      'deleteSearchHistory',
+      'clearSearchHistory'
     ])
   }
 }
