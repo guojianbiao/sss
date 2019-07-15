@@ -17,7 +17,7 @@
           <div class="search-history" v-show="searchHistory.length">
             <h1 class="title">
               <span class="text">搜索历史</span>
-              <span class="clear" @click="clearSearchHistory">
+              <span class="clear" @click="showConfirm">
                 <i class="icon-clear"></i>
               </span>
             </h1>
@@ -29,7 +29,7 @@
     <div class="search-result" v-show="query">
       <suggest :query="query" :listScroll="blurInput" @select="saveSearch"></suggest>
     </div>
-    <confirm ref="confirm"></confirm>
+    <confirm ref="confirm" @confirm="clearSearchHistory" text="是否清空所有搜索历史" confirmText="清空"></confirm>
     <router-view></router-view>
   </div>
 </template>
@@ -89,6 +89,9 @@ export default {
     },
     saveSearch() {
       this.searchSaveHistory(this.query)
+    },
+    showConfirm() {
+      this.$refs.confirm.show()
     },
     ...mapActions([
       'searchSaveHistory',

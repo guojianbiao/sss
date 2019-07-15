@@ -3,10 +3,10 @@
     <div class="confirm" v-show="showflag">
       <div class="confirm-wrapper">
         <div class="confirm-content">
-          <p class="text"></p>
+          <p class="text">{{ text }}</p>
           <div class="operate">
-            <div class="operate-btn left"></div>
-            <div class="operate-btn"></div>
+            <div @click="cancle" class="operate-btn left">{{ cancleText }}</div>
+            <div @click="confirm" class="operate-btn">{{ confirmText }}</div>
           </div>
         </div>
       </div>
@@ -16,6 +16,20 @@
 
 <script>
 export default {
+  props: {
+    text: {
+      type: String,
+      default: ''
+    },
+    confirmText: {
+      type: String,
+      default: '确认'
+    },
+    cancleText: {
+      type: String,
+      default: '取消'
+    }
+  },
   data() {
     return {
       showflag: false
@@ -27,6 +41,14 @@ export default {
     },
     hide() {
       this.showflag = false
+    },
+    cancle() {
+       this.hide()
+       this.$emit('cancle')
+    },
+    confirm() {
+      this.hide()
+      this.$emit('confirm')
     }
   },
 }
