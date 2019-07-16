@@ -154,6 +154,9 @@ export default {
     listScroll() {
       this.$emit('listScroll')
     },
+    refresh() {
+      this.$refs.suggest.refresh()
+    },
     ...mapMutations({
       setSinger: 'SET_SINGER'
     }),
