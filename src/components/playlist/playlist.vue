@@ -5,23 +5,23 @@
         <div class="list-header">
           <h1 class="title">
             <i class="icon"></i>
-            <span class="text">顺序播放</span>
-            <span class="clear"><i class="icon-clear"></i></span>
+            <span class="text">{{ modeText }}</span>
+            <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
         <scroll class="list-content" :data="sequenceList" ref="listcontent">
-          <ul>
-            <li class="item" v-for="(item, index) in sequenceList" :key="index">
+          <transition-group name="list" tag="ul">
+            <li ref="listItem" class="item" v-for="(item, index) in sequenceList" :key="item.id" @click="selectItem(item, index)">
               <i class="current" :class="getCurrentCls(item)"></i>
               <span class="text">{{ item.name }}</span>
               <span class="like">
                 <i class="icon-not-favorite"></i>
               </span>
-              <span class="delete">
+              <span class="delete" @click.stop="deleteOne(item)">
                 <i class="icon-delete"></i>
               </span>
             </li>
-          </ul>
+          </transition-group>
         </scroll>
         <div class="list-operate">
           <div class="add">
@@ -33,17 +33,22 @@
           <span>关闭</span>
         </div>
       </div>
+      <confirm confirmText="清空" text="是否清空播放列表" ref="confirm" @confirm="confirmClear"></confirm>
     </div>
   </transition>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import { playMode } from 'common/js/config'
 import Scroll from 'base/scroll/scroll'
+import Confirm from 'base/confirm/confirm'
+import { mapMutations, mapActions } from 'vuex'
 
 export default {
   components: {
-    Scroll
+    Scroll,
+    Confirm
   },
   data() {
     return {
@@ -51,9 +56,14 @@ export default {
     }
   },
   computed: {
+    modeText() {
+      return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
+    },
     ...mapGetters([
       'sequenceList',
-      'currentSong'
+      'currentSong',
+      'playList',
+      'mode'
     ])
   },
   methods: {
@@ -61,16 +71,62 @@ export default {
       this.showFlag = true
       setTimeout(() => {
         this.$refs.listcontent.refresh()
+        this.scrollToCurrentSong(this.currentSong)
       }, 20)
     },
     hide() {
       this.showFlag = false
+    },
+    selectItem(item, index) {
+      // console.log(index)
+      if (this.mode === playMode.random) {
+        index = this.playList.findIndex((song) => {
+          return song.id === item.id
+        })
+      }
+      this.setCurrentIndex(index)
+      this.setPlaying(true)
+    },
+    deleteOne(item) {
+      this.deleteSong(item)
+      if (!this.playList.length) {
+        this.hide()
+      }
+    },
+    showConfirm() {
+      this.$refs.confirm.show()
+    },
+    confirmClear() {
+      this.clearPlayList()
+      this.hide()
+    },
+    scrollToCurrentSong(current) {
+      const index = this.sequenceList.findIndex((song) => {
+        return song.id === current.id
+      })
+      this.$refs.listcontent.scrollToElement(this.$refs.listItem[index], 300)
     },
     getCurrentCls(item) {
       if (this.currentSong.id === item.id) {
         return 'icon-play'
       }
       return ''
+    },
+    ...mapMutations({
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlaying: 'SET_PLAYING'
+    }),
+    ...mapActions([
+      'deleteSong',
+      'clearPlayList'
+    ])
+  },
+  watch: {
+    currentSong(newSong, oldSong) {
+      if (!this.showFlag || newSong.id === oldSong.id) {
+        return
+      }
+      this.scrollToCurrentSong(newSong)
     }
   }
 }
@@ -130,6 +186,10 @@ export default {
           height 40px
           padding 0 30px 0 20px
           overflow hidden
+          &.list-enter-active, &.list-leave-active
+            transition all 0.1s
+          &.list-enter, &.list-leave-to
+            height 0
           .current
             flex 0 0 20px
             width 20px
