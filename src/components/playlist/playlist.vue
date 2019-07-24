@@ -24,7 +24,7 @@
           </transition-group>
         </scroll>
         <div class="list-operate">
-          <div class="add">
+          <div class="add" @click="showAddSong">
             <i class="icon-add"></i>
             <span class="text">添加歌曲到队列</span>
           </div>
@@ -34,15 +34,16 @@
         </div>
       </div>
       <confirm confirmText="清空" text="是否清空播放列表" ref="confirm" @confirm="confirmClear"></confirm>
+      <add-song ref="addSong"></add-song>
     </div>
   </transition>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { playMode } from 'common/js/config'
 import Scroll from 'base/scroll/scroll'
 import Confirm from 'base/confirm/confirm'
+import AddSong from 'components/add-song/add-song'
 import { mapActions } from 'vuex'
 import { playerMixin } from 'common/js/mixin'
 
@@ -50,7 +51,8 @@ export default {
   mixins: [playerMixin],
   components: {
     Scroll,
-    Confirm
+    Confirm,
+    AddSong
   },
   data() {
     return {
@@ -60,15 +62,13 @@ export default {
   computed: {
     modeText() {
       return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
-    },
-    ...mapGetters([
-      'playList',
-      'currentSong',
-      'mode',
-      'sequenceList'
-    ])
+    }
   },
   methods: {
+    // 添加歌曲到队列
+    showAddSong() {
+      this.$refs.addSong.show()
+    },
     show() {
       this.showFlag = true
       setTimeout(() => {

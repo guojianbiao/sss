@@ -43,14 +43,14 @@ export default {
       this.showflag = false
     },
     cancle() {
-       this.hide()
-       this.$emit('cancle')
+      this.hide()
+      this.$emit('cancle')
     },
     confirm() {
       this.hide()
       this.$emit('confirm')
     }
-  },
+  }
 }
 </script>
 

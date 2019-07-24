@@ -26,7 +26,7 @@ export default {
     deleteOne(item) {
       this.$emit('delete', item)
     }
-  },
+  }
 }
 </script>
 

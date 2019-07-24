@@ -158,12 +158,8 @@ export default {
     },
     ...mapGetters([
       'fullScreen',
-      'playList',
-      'currentSong',
       'playing',
-      'currentIndex',
-      'mode',
-      'sequenceList'
+      'currentIndex'
     ])
   },
   methods: {
@@ -321,6 +317,25 @@ export default {
         this.currentLyric.seek(currentTime * 1000)
       }
     },
+    changePlayMode() {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+      let list = null
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      // console.log(list)
+      this.restCurrentIndex(list)
+      this.setPlayList(list)
+    },
+    restCurrentIndex(list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
+    },
     getLyric() {
       this.currentSong.getLyric().then((lyric) => {
         this.currentLyric = new Lyric(lyric, this.handler)
@@ -400,8 +415,7 @@ export default {
       this.$refs.middleL.style[transitionDuration] = `${time}ms`
     },
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN',
-      setPlayMode: 'SET_MODE'
+      setFullScreen: 'SET_FULL_SCREEN'
     })
   },
   watch: {
