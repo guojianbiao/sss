@@ -46,19 +46,25 @@ export default {
       const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
       const offsetWidth = Math.min(barWidth, Math.max(0, deltaX + this.touch.left))
       this._offset(offsetWidth)
+      this.$emit('percentChanging', this._getPercent())
     },
     progressTouchEnd() {
       this.touch.initiated = false
       this._triggerPercent()
     },
     _triggerPercent() {
-      const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
-      const percent = this.$refs.progress.clientWidth / barWidth
       this.$emit('percentChange', percent)
     },
     _offset(offsetWidth) {
       this.$refs.progress.style.width = `${offsetWidth}px`
       this.$refs.progressBtn.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`
+    },
+    setProgressOffset(percent) {
+      if (percent >= 0 && !this.touch.initiated) {
+        const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
+        const offsetWidth = percent * barWidth
+        this._offset(offsetWidth)
+      }
     },
     progressClick(e) {
       // 点击按钮时能正确获取到位置
@@ -66,15 +72,15 @@ export default {
       const offsetWidth = e.pageX - rect.left
       this._offset(offsetWidth)
       this._triggerPercent()
+    },
+    _getPercent () {
+      const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
+      return this.$refs.progress.clientWidth / barWidth
     }
   },
   watch: {
     percent(newPercent) {
-      if (newPercent >= 0 && !this.touch.initiated) {
-        const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
-        const offsetWidth = newPercent * barWidth
-        this._offset(offsetWidth)
-      }
+      this.setProgressOffset(newPercent)
     }
   }
 }
