@@ -4,7 +4,7 @@
       <search-box ref="searchBox" @query="onQuery"></search-box>
     </div>
     <div class="shortcut-wrapper" v-show="!query" ref="shortcutWrapper">
-      <scroll class="shortcut" :data="shortcut" ref="shortcut">
+      <scroll class="shortcut" :data="shortcut" ref="shortcut" :refreshDelay="refreshDelay">
         <div>
           <div class="hot-key">
             <h1 class="title">热门搜索</h1>
@@ -65,10 +65,7 @@ export default {
   computed: {
     shortcut() {
       return this.hotKey.concat(this.searchSaveHistory)
-    },
-    ...mapGetters([
-      'searchHistory'
-    ])
+    }
   },
   watch: {
     query(newQuery) {
@@ -95,9 +92,6 @@ export default {
           // console.log(this.hotKey)
         }
       })
-    },
-    addQuery(query) {
-      this.$refs.searchBox.setQuery(query)
     },
     showConfirm() {
       this.$refs.confirm.show()

@@ -70,17 +70,24 @@ export const playerMixin = {
 export const searchMixin = {
   data() {
     return {
-      query: ''
+      query: '',
+      refreshDelay: 100
     }
   },
-  // computed: {
-  // },
+  computed: {
+    ...mapGetters([
+      'searchHistory'
+    ])
+  },
   methods: {
     onQuery(query) {
       this.query = query
     },
     saveSearch() {
       this.searchSaveHistory(this.query)
+    },
+    addQuery (query) {
+      this.$refs.searchBox.setQuery(query)
     },
     blurInput() {
       this.$refs.searchBox.blur()

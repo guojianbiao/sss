@@ -9,9 +9,13 @@
             <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
-        <scroll class="list-content" :data="sequenceList" ref="listcontent">
+        <scroll class="list-content" :data="sequenceList" ref="listcontent" :refreshDelay="refreshDelay">
           <transition-group name="list" tag="ul">
-            <li ref="listItem" class="item" v-for="(item, index) in sequenceList" :key="item.id" @click="selectItem(item, index)">
+            <li ref="listItem"
+              class="item" v-for="(item, index) in sequenceList"
+              :key="item.id"
+              @click="selectItem(item, index)"
+            >
               <i class="current" :class="getCurrentCls(item)"></i>
               <span class="text">{{ item.name }}</span>
               <span class="like">
@@ -56,7 +60,8 @@ export default {
   },
   data() {
     return {
-      showFlag: false
+      showFlag: false,
+      refreshDelay: 100
     }
   },
   computed: {
