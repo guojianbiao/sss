@@ -53,7 +53,7 @@ export default {
       this._triggerPercent()
     },
     _triggerPercent() {
-      this.$emit('percentChange', percent)
+      this.$emit('percentChange', this._getPercent())
     },
     _offset(offsetWidth) {
       this.$refs.progress.style.width = `${offsetWidth}px`

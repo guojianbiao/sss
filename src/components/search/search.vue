@@ -42,7 +42,7 @@ import Confirm from 'base/confirm/confirm'
 import Scroll from 'base/scroll/scroll'
 import { getHotKey } from 'api/search'
 import { ERR_OK } from 'api/config'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 import { playlistMixin, searchMixin } from 'common/js/mixin'
 
 export default {
