@@ -55,7 +55,7 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{ format(currentTime) }}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar ref="progressBar" :percent="percent" @percentChange="handlePercent" @percentChanging="onProgressBarChanging"></progress-bar>
+              <progress-bar :percent="percent" @percentChange="handlePercent"></progress-bar>
             </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
@@ -73,7 +73,7 @@
               <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon" :class="getFavorite(currentSong)" @click="toggleFavorite(currentSong)"></i>
+              <i class="icon icon-not-favorite"></i>
             </div>
           </div>
         </div>
@@ -99,20 +99,12 @@
       </div>
     </transition>
     <play-list ref="playlist"></play-list>
-    <audio
-      ref="audio"
-      :src="currentSong.url"
-      @playing="ready"
-      @error="error"
-      @timeupdate="updateTime"
-      @ended="end"
-      @pause="paused"
-    ></audio>
+    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
@@ -126,7 +118,6 @@ import { playerMixin } from 'common/js/mixin'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
-const timeExp = /\[(\d{2}):(\d{2}):(\d{2})]/g
 export default {
   mixins: [playerMixin],
   components: {
@@ -216,11 +207,7 @@ export default {
       this.$refs.cdWrapper.style.transition = 'all 0.4s'
       const {x, y, scale} = this._getPosScale()
       this.$refs.cdWrapper.style[transform] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
-      const timer = setTimeout(done, 400)
-      this.$refs.cdWrapper.addEventListener('transitionend', () => {
-        clearTimeout(timer)
-        done()
-      })
+      this.$refs.cdWrapper.addEventListener('transitionend', done)
     },
     afterLeave() {
       this.$refs.cdWrapper.style.transition = ''
@@ -243,10 +230,10 @@ export default {
       }
     },
     togglePlaying() {
+      this.setPlaying(!this.playing)
       if (!this.songReady) {
         return
       }
-      this.setPlaying(!this.playing)
       if (this.currentLyric) {
         this.currentLyric.togglePlay()
       }
@@ -267,6 +254,7 @@ export default {
           this.togglePlaying()
         }
       }
+      this.songReady = false
     },
     next() {
       if (!this.songReady) {
@@ -284,26 +272,13 @@ export default {
           this.togglePlaying()
         }
       }
+      this.songReady = false
     },
     ready() {
-      clearTimeout(this.timer)
       // 监听 playing 这个事件可以确保慢网速或者快速切换歌曲导致的 DOM Exception
       this.songReady = true
-      this.canLyricPlay = true
-      this.savePlayHistory(this.currentSong)
-      // 如果歌曲的播放晚于歌词的出现，播放的时候需要同步歌词
-      if(this.currentLyric && !this.isPureMusic) {
-        this.currentLyric.seek(this.currentTime * 1000)
-      }
-    },
-    paused() {
-      this.setPlaying(false)
-      if(this.currentLyric) {
-        this.currentLyric.stop()
-      }
     },
     end() {
-      this.currentTime = 0
       if (this.mode === playMode.loop) {
         this.loop()
       } else {
@@ -313,13 +288,11 @@ export default {
     loop() {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
-      this.setPlaying(true)
       if (this.currentLyric) {
         this.currentLyric.seek(0)
       }
     },
     error() {
-      clearTimeout(this.timer)
       // 当歌曲的url不正确的时候，设置这个确保能正常进行点击切换
       this.songReady = true
     },
@@ -335,35 +308,39 @@ export default {
     },
     handlePercent(percent) {
       const currentTime = this.currentSong.duration * percent
-      this.currentTime = this.$refs.audio.currentTime = currentTime
-      if(this.currentLyric) {
-        this.currentLyric.seek(currentTime * 1000)
-      }
-      if(!this.playing) {
+      this.$refs.audio.currentTime = currentTime
+      // console.log('s:' + this.$refs.audio.currentTime)
+      if (!this.playing) {
         this.togglePlaying()
       }
-    },
-    onProgressBarChanging (percent) {
-      this.currentTime = this.currentSong.duration * percent
-      if(this.currentLyric) {
-        this.currentLyric.seek(this.currentTime * 1000)
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
       }
+    },
+    changePlayMode() {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+      let list = null
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      // console.log(list)
+      this.restCurrentIndex(list)
+      this.setPlayList(list)
+    },
+    restCurrentIndex(list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
     },
     getLyric() {
       this.currentSong.getLyric().then((lyric) => {
-        if (this.currentSong.lyric !== lyric) {
-          return
-        }
-        this.currentLyric = new Lyric(lyric, this.handleLyric)
-        this.isPureMusic = !this.currentLyric.lines.length
-        if (this.isPureMusic) {
-          this.pureMusicLyric = this.currentLyric.lrc.replace(timeExp, '').trim()
-          this.playingLyric = this.pureMusicLyric
-        } else {
-          if (this.playing && this.canLyricPlay) {
-            // 这个时候有可能用户已经播放了歌曲，要切到对应位置
-            this.currentLyric.seek(this.currentTime * 1000)
-          }
+        this.currentLyric = new Lyric(lyric, this.handler)
+        if (this.playing) {
+          this.currentLyric.play()
         }
         console.log(this.currentLyric)
       }).catch(() => {
@@ -372,13 +349,10 @@ export default {
         this.playingLyric = ''
       })
     },
-    handleLyric({lineNum, txt}) {
-      if (!this.$refs.lyricLine) {
-        return
-      }
+    handler({lineNum, txt}) {
       this.currentLineNum = lineNum
+      let lineEl = this.$refs.lyricLine[lineNum - 5]
       if (lineNum > 5) {
-        let lineEl = this.$refs.lyricLine[lineNum - 5]
         this.$refs.lyricList.scrollToElement(lineEl, 1000)
       } else {
         this.$refs.lyricList.scrollTo(0, 0, 1000)
@@ -389,8 +363,6 @@ export default {
     // 滑动切换歌词
     middleTouchStart(e) {
       this.touch.initiated = true
-      // 用来判断是否是一次移动
-      this.touch.moved = false
       const touch = e.touches[0]
       this.touch.startX = touch.pageX
       this.touch.startY = touch.pageY
@@ -415,9 +387,6 @@ export default {
       this.$refs.middleL.style[transitionDuration] = 0
     },
     middleTouchEnd() {
-      if (!this.touch.moved) {
-        return
-      }
       let offsetWidth
       let opacity
       if (this.currentShow === 'cd') {
@@ -444,77 +413,32 @@ export default {
       this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
       this.$refs.middleL.style.opacity = opacity
       this.$refs.middleL.style[transitionDuration] = `${time}ms`
-      this.touch.initiated = false
-    },
-    /**
-       * 计算内层Image的transform，并同步到外层容器
-       * @param wrapper
-       * @param inner
-       */
-    syncWrapperTransform (wrapper, inner) {
-      if (!this.$refs[wrapper]) {
-        return
-      }
-      let imageWrapper = this.$refs[wrapper]
-      let image = this.$refs[inner]
-      let wTransform = getComputedStyle(imageWrapper)[transform]
-      let iTransform = getComputedStyle(image)[transform]
-      imageWrapper.style[transform] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform)
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
-    }),
-    ...mapActions([
-      'savePlayHistory'
-    ])
+    })
   },
   watch: {
     currentSong(newSong, oldSong) {
-      if (!newSong.id || !newSong.url || newSong.id === oldSong.id) {
+      if (!newSong.id) {
         return
       }
-      this.songReady = false
-      this.canLyricPlay = false
+      if (newSong.id === oldSong.id) {
+        return
+      }
       if (this.currentLyric) {
         this.currentLyric.stop()
-        // 重置为null
-        this.currentLyric = null
-        this.currentTime = 0
-        this.playingLyric = ''
-        this.currentLineNum = 0
       }
-      this.$refs.audio.src = newSong.url
-      this.$refs.audio.play()
-      // 若歌曲 5s 未播放，则认为超时，修改状态确保可以切换歌曲。
-      clearTimeout(this.timer)
-      this.timer = setTimeout(() => {
-        this.songReady = true
-      }, 5000)
-      this.getLyric()
+      setTimeout(() => {
+        this.$refs.audio.play()
+        this.getLyric()
+      }, 1000)
     },
     playing(newPlaying) {
-      if (!this.songReady) {
-        return
-      }
       const audio = this.$refs.audio
       this.$nextTick(() => {
         newPlaying ? audio.play() : audio.pause()
       })
-      if (!newPlaying) {
-        if (this.fullScreen) {
-          this.syncWrapperTransform('imageWrapper', 'image')
-        } else {
-          this.syncWrapperTransform('miniWrapper', 'miniImage')
-        }
-      }
-    },
-    fullScreen (newVal) {
-      if (newVal) {
-        setTimeout(() => {
-          this.$refs.lyricList.refresh()
-          this.$refs.progressBar.setProgressOffset(this.percent)
-        }, 20)
-      }
     }
   }
 }
