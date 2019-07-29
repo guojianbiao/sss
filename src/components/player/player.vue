@@ -126,11 +126,9 @@ import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
 import { playerMixin } from 'common/js/mixin'
 import Playlist from 'components/playlist/playlist'
-
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
 const timeExp = /\[(\d{2}):(\d{2}):(\d{2})]/g
-
 export default {
   mixins: [playerMixin],
   data () {
