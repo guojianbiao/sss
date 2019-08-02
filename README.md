@@ -1,21 +1,3 @@
-# vue-music
+音乐播放器
 
-> 音乐播放器--
-
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+    该项目是基于vue全家桶（vue、vue-router、vuex、axios）开发的音乐播放器，主要功能包括推荐、歌手、排行、搜索、播放等页面，真实数据通过接口获取QQ音乐上的数  据
