@@ -1,5 +1,4 @@
 音乐播放器
-
     该项目是基于vue全家桶（vue、vue-router、vuex、axios）开发的音乐播放器，主要功能包括推荐、歌手、排行、搜索、播放等页面，真实数据通过接口获取QQ音乐上的数据
 ![image](https://github.com/guojianbiao/sss/blob/master/gif/playlist.gif)
 
@@ -21,3 +20,4 @@
   使用配置数据，实现了数据和应用分离，以常量的形式存储在constants目录下
 
   使用了阿里云的短信模块，实现了短信验证功能
+  
