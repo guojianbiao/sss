@@ -10,6 +10,14 @@
 ---
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;主要功能包括推荐、歌手、排行、搜索、播放等页面<br/>
 【推荐页面】<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;推荐页面包括可拖拽轮播图、热门歌单推荐<br/>
-![image](https://github.com/guojianbiao/sss/blob/master/gif/recommend.gif)
-  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;推荐页面包括可拖拽轮播图、热门歌单推荐<br/><br/>
+![image](https://github.com/guojianbiao/sss/blob/master/gif/recommend.gif)<br/>
+【歌手页面】<br/><br/>
+![image](https://github.com/guojianbiao/sss/blob/master/gif/singer.gif)<br/>
+【排行页面】<br/><br/>
+![image](https://github.com/guojianbiao/sss/blob/master/gif/rank.gif)<br/>
+【搜索页面】<br/><br/>
+![image](https://github.com/guojianbiao/sss/blob/master/gif/search.gif)<br/>
+【播放页面】<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;播放页面主要功能有暂停、播放、上一首、下一首、随机播放、收藏、歌词展示<br/><br/>
+![image](https://github.com/guojianbiao/sss/blob/master/gif/play.gif)<br/>
