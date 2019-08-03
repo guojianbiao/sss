@@ -97,3 +97,57 @@
     tab.vue // 顶部导航栏组件
     top-list.vue // 排行榜详情页组件
     user-center.vue // 用户中心页组件
+    
+
+【获取数据的问题】<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;有一些页面的数据并不能通过jsonp的方法直接获取到，解决方法：在build目录下的webpack.dev.conf.js文件中设置代理，如下：
+
+    const axios = require('axios')
+    const bodyParser = require('body-parser')
+    
+    devServer: {
+      before(app) {
+        app.use(bodyParser.urlencoded({extended: true}))
+
+        // 获取歌词接口代理
+        app.get('/api/lyric', function(req, res) {
+          const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+          axios.get(url, {
+            headers: {
+              referer: 'https://c.y.qq.com/',
+              host: 'c.y.qq.com'
+            },
+            params: req.query
+          }).then((response) => {
+            var ret = response.data
+            if (typeof ret === 'string') {
+              var reg = /^\w+\(({.+})\)$/
+              var matches = ret.match(reg)
+              if (matches) {
+                ret = JSON.parse(matches[1])
+              }
+            }
+            res.json(ret)
+          }).catch((err) => {
+            console.log(err)
+          })
+        })
+        
+        // 歌手歌单播放地址数据接口代理
+        app.post('/api/getPurlUrl', bodyParser.json(), function (req, res) {
+          const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+          axios.post(url, req.body, {
+            headers: {
+              referer: 'https://y.qq.com/',
+              origin: 'https://y.qq.com',
+              'Content-type': 'application/x-www-form-urlencoded'
+            }
+          }).then((response) => {
+            res.json(response.data)
+          }).catch((e) => {
+            console.log(e)
+          })
+        })
+        
+        ...
+       }
