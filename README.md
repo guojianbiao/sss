@@ -30,7 +30,7 @@
         recommend.js // 获取推荐页面的数据
         rank.js // 获取排行页面的数据
         singer.js // 获取歌手数据
-　      ...
+        ...
        
     - base // 存放公共组件
         confirm.vue // 确认对话框组件
