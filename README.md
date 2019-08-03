@@ -62,4 +62,38 @@
       - store // 存放vuex
           index.js
         
-【公共组件】
+【公共组件】<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;封装了确认对话框组件、通讯录列表组件、加载态组件、无结果展示组件、进度条组件、圆形进度条组件、移动端滚动组件、搜索框组件、搜索列表组件、轮播图组件、开关切换组件、顶部消息提示组件、歌曲列表组件等13个公共组件
+
+    confirm.vue // 确认对话框组件
+    listview.vue // 通讯录列表组件
+    loading.vue // 加载态组件
+    no-result.vue // 无结果展示组件
+    progress-bar.vue // 进度条组件
+    progress-circle.vue // 圆形进度条组件
+    scroll.vue // 移动端滚动组件
+    search-box.vue // 搜索框组件
+    search-list.vue // 搜索列表组件
+    slider.vue // 轮播图组件
+    switches.vue // 开关切换组件
+    top-tip.vue // 顶部消息提示组件
+    song-list.vue // 歌曲列表组件
+    
+【功能组件】<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;封装了添加歌曲到列表组件、歌单详情页组件、页面头部组件、歌曲列表页面组件、播放器内核组件、播放列表组件、排行榜页面组件、推荐页面组件、搜索页面组件、歌手页面组件、歌手详情页组件、搜索提示列表组件、顶部导航栏组件、排行榜详情页组件、用户中心页组件等15个组件
+
+    add-song.vue // 添加歌曲到列表组件
+    disc.vue // 歌单详情页组件
+    m-header.vue // 页面头部组件
+    music-list.vue // 歌曲列表页面组件
+    player.vue // 播放器内核组件
+    playlist.vue // 播放列表组件
+    rank.vue // 排行榜页面组件
+    recommend.vue // 推荐页面组件
+    search.vue // 搜索页面组件
+    singer.vue // 歌手页面组件
+    singer-detail.vue // 歌手详情页组件
+    suggest.vue // 搜索提示列表组件
+    tab.vue // 顶部导航栏组件
+    top-list.vue // 排行榜详情页组件
+    user-center.vue // 用户中心页组件
