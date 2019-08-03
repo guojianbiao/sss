@@ -21,3 +21,45 @@
 【播放页面】<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;播放页面主要功能有暂停、播放、上一首、下一首、随机播放、收藏、歌词展示<br/><br/>
 ![image](https://github.com/guojianbiao/sss/blob/master/gif/play.gif)<br/>
+
+目录结构
+---
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src目录下，包括api(获取数据方法)、base(公共组件)、common(公共的静态资源)、components(功能组件)、router(路由)、store(vuex)这6个目录
+
+    - api // 获取数据方法
+        recommend.js // 获取推荐页面的数据
+        rank.js // 获取排行页面的数据
+        singer.js // 获取歌手数据
+　      ...
+       
+    - base // 存放公共组件
+        confirm.vue // 确认对话框组件
+        scroll.vue // 移动端滚动组件
+        slider.vue // 轮播图组件
+        ...
+   
+    - common // 存放公共的静态资源
+        -fonts // 存放图标字体
+        -image // 存放图片
+        -js // 存放公共方法
+            cache.js // 浏览器存储
+            jsonp.js // 跨域获取数据
+            mixin.js // 组件共用的方法
+            util.js // 其他工具方法
+            ...
+         -stylus // 存放样式
+         
+    - components // 存放功能组件
+        recommend.vue // 推荐页面组件
+        singer.vue // 歌手页面组件
+        rank.vue // 排行榜页面组件
+        search.vue // 搜索页面组件
+        ...
+        
+      - router // 存放路由
+          index.js
+          
+      - store // 存放vuex
+          index.js
+        
+【公共组件】
